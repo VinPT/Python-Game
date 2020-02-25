@@ -12,13 +12,19 @@ class Room:
 
 
 class Character:
-  def position(self):
-    self.x = x
-    self.y = y
-    
-  def __init__(self, weapon, level, position):
+
+  def __init__(self, weapon, level, position, name):
     self.weapon = weapon
     self.level = level
     self.position = (x,y)
+    self.name = name
+
+  def position(self):
+    self.x = ?
+    self.y = ?
 
   
+
+  def __repr__(self):
+    return self.name
+
