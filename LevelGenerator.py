@@ -15,25 +15,47 @@ class LevelGenerator:
         self.level = [[TempRoom for x in range(xSize)] for x in range(ySize)]
         
         print("Hello my size is " , len(self.level), len(self.level[0]))       #i think it is Y X this might get me later 
-        self.makeRoom(None,"1f", 0, 0)
+
+        #make fake room to make this work inelegent but it works
+        fakeRoom = TempRoom
+        fakeRoom.xloc = -1
+        fakeRoom.yloc = 0
+        fakeRoom.depth = -1
+
+        self.makeRoom(fakeRoom,"1f", 2, 2)
 
     def makeRoom(self, lastRoom, roomName , locx, locy):
         deepestNode = None
         depth = 0
+
         choices = ["L","F","R"]
+        selectDirection = rand.randint(0,2)
+
         roomExitCalculator = Probability([30,55,15])
         numberExits = roomExitCalculator.calculate()
         
-
+        #check slot is not occupyed
+        print("this rooms name is "+self.level[locx][locy].roomName, locx, locy)
         if self.level[locx][locy].roomName == "none":
+            
+            #set room values
             self.level[locx][locy].roomName = roomName
+            self.level[locx][locy].xloc = locx
+            self.level[locx][locy].yloc = locy
             
             #generate Exits
             #if 0 is returned for depth dont consider room generated
             print("number exits", numberExits)
 
+            
+            #Generate children rooms
+            #Generate children needs a better algorithm that makes sure of problems
             for x in range(numberExits):
-                self.makeRoom(self.level[locx][locy], "2F", 1, 1)
+                temp = self._nextRoomDataGenerator(lastRoom, self.level[locx][locy], choices[ (selectDirection + x) % 3])
+                if temp is not None:
+                    self.makeRoom(self.level[locx][locy], temp[0], temp[1], temp[2])
+                else:
+                    print("Temp was none on node" + self.level[locx][locy], locx, locy)
 
         else:
             deepestNode = roomName
@@ -63,7 +85,7 @@ class LevelGenerator:
         if (locx < 0 or locx < 0 or locx >= len(self.level)  or locy >= len(self.level[0])):
             return None
         else:
-            return name, thisRoom.locx, thisRoom.locy
+            return name, locx, locy
         
 
 
