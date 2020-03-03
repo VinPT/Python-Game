@@ -4,12 +4,13 @@ from collections import namedtuple
 
 class LevelGenerator:
     level= []
-    roomExitCalculator = Probability([30,55,15])
+
     
     def __init__(self, xSize, ySize): #zSize not included thus keeping it two dimentional for now.
         
         self.generateNewMap(xSize,ySize,1)
-        roomNumber = Probability([30,55,15])
+        
+        
     
     def generateNewMap(self, xSize,ySize,Zsize):
         self.level = [[TempRoom for x in range(xSize)] for x in range(ySize)]
@@ -20,7 +21,8 @@ class LevelGenerator:
     def makeRoom(self, lastRoom, roomName , locx, locy):
         deepest = "null"
         depth = 0
-        numberExits = self.roomExitCalculator.calculate()
+        roomExitCalculator = Probability([30,55,15])
+        numberExits = roomExitCalculator.calculate()
         
 
         if self.level[locx][locy].roomName == "null":
