@@ -12,15 +12,12 @@ class LevelGenerator:
             
     
     def generateNewMap(self, xSize,ySize,Zsize):
-        self.level = [[TempRoom for x in range(xSize)] for x in range(ySize)]
+        self.level = [[TempRoom("none",-1,-2,-2) for x in range(xSize)] for x in range(ySize)]
         
         print("Hello my size is " , len(self.level), len(self.level[0]))       #i think it is Y X this might get me later 
 
         #make fake room to make this work inelegent but it works
-        fakeRoom = TempRoom
-        fakeRoom.xloc = -1
-        fakeRoom.yloc = 0
-        fakeRoom.depth = -1
+        fakeRoom = TempRoom("Fakeroom",-1,-1,0)
 
         self.makeRoom(fakeRoom,"1f", 2, 2)
 
@@ -55,7 +52,7 @@ class LevelGenerator:
                 if temp is not None:
                     self.makeRoom(self.level[locx][locy], temp[0], temp[1], temp[2])
                 else:
-                    print("Temp was none on node" + self.level[locx][locy], locx, locy)
+                    print("Temp was none on node" , locx, locy)
 
         else:
             deepestNode = roomName
@@ -127,7 +124,12 @@ class TempRoom:
     yloc = 0
     connectedRooms = [];
 
-    
+    def __init__(self, roomName, depth, xloc, yloc):
+        self.roomName = roomName
+        self.depth = depth
+        self.xloc = xloc
+        self.yloc = yloc
+        
     
 p1 = LevelGenerator(10,10)
 #p1.generateNewMap(1,1,1)
