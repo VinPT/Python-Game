@@ -17,13 +17,13 @@ class LevelGenerator:
         print("Hello my size is " , len(self.level), len(self.level[0]))       #i think it is Y X this might get me later 
 
         #make fake room to make this work inelegent but it works
-        fakeRoom = TempRoom("Fakeroom",-1,-1,0)
+        fakeRoom = TempRoom("Fakeroom",0,-1,0)
 
-        self.makeRoom(fakeRoom,"1f", 2, 2)
+        self.makeRoom(fakeRoom," 1F ", 0, 0)
 
     def makeRoom(self, lastRoom, roomName , locx, locy):
         deepestNode = None
-        depth = 0
+        depth = lastRoom.depth+1
 
         choices = ["L","F","R"]
         selectDirection = rand.randint(0,2)
@@ -32,13 +32,14 @@ class LevelGenerator:
         numberExits = roomExitCalculator.calculate()
         
         #check slot is not occupyed
-        print("this rooms name is "+self.level[locx][locy].roomName, locx, locy)
+        # old test statement print("this rooms name is "+self.level[locx][locy].roomName, locx, locy)
         if self.level[locx][locy].roomName == "none":
             
             #set room values
             self.level[locx][locy].roomName = roomName
             self.level[locx][locy].xloc = locx
             self.level[locx][locy].yloc = locy
+            self.level[locx][locy].depth = depth
             
             #generate Exits
             #if 0 is returned for depth dont consider room generated
@@ -57,7 +58,7 @@ class LevelGenerator:
         else:
             deepestNode = roomName
 
-        return depth, deepestNode    
+        return deepestNode    
 
     def _nextRoomDataGenerator(self, lastRoom,thisRoom,roomLetter):
         name = "neyt"
@@ -69,21 +70,31 @@ class LevelGenerator:
         if (roomLetter == "F"):
             locx = thisRoom.xloc + xdif
             locy = thisRoom.yloc + ydif
+            name = " {}F ".format(thisRoom.depth+1)
 
         elif (roomLetter == "L"):
             locx = thisRoom.xloc + ydif
             locy = thisRoom.yloc + xdif
+            name = " {}L ".format(thisRoom.depth+1)
     
         elif (roomLetter == "R"):
             locx = thisRoom.xloc - ydif
             locy = thisRoom.yloc - xdif
+            name = " {}R ".format(thisRoom.depth+1)
         
 
         if (locx < 0 or locx < 0 or locx >= len(self.level)  or locy >= len(self.level[0])):
             return None
         else:
             return name, locx, locy
-        
+    
+    def printLevel(self):
+        for i in range(len(self.level[0])):
+            for j in range(len(self.level)):
+                print(self.level[i][j].roomName,end=' ')
+            print(end='\n')
+        return None
+    
 
 
 
@@ -131,7 +142,8 @@ class TempRoom:
         self.yloc = yloc
         
     
-p1 = LevelGenerator(10,10)
+p1 = LevelGenerator(5,5)
+p1.printLevel()
 #p1.generateNewMap(1,1,1)
 
 
