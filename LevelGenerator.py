@@ -12,7 +12,7 @@ class LevelGenerator:
             
     
     def generateNewMap(self, xSize,ySize,Zsize):
-        self.level = [[TempRoom("none",-1,-2,-2) for x in range(xSize)] for x in range(ySize)]
+        self.level = [[TempRoom("none",-1,-2,-2) for x in range(xSize)] for y in range(ySize)]
         
         print("Hello my size is " , len(self.level), len(self.level[0]))       #i think it is Y X this might get me later 
 
@@ -83,7 +83,7 @@ class LevelGenerator:
             name = " {}R ".format(thisRoom.depth+1)
         
 
-        if (locx < 0 or locx < 0 or locx >= len(self.level)  or locy >= len(self.level[0])):
+        if (locx < 0 or locy < 0 or locx >= len(self.level)  or locy >= len(self.level[0])):
             return None
         else:
             return name, locx, locy
