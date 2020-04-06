@@ -1,5 +1,4 @@
 import random as rand
-from collections import namedtuple
 
 
 class LevelGenerator:
@@ -28,7 +27,7 @@ class LevelGenerator:
         choices = ["L","F","R"]
         selectDirection = rand.randint(0,2)
 
-        roomExitCalculator = Probability([30,55,15])
+        roomExitCalculator = Probability([33,33,34])
         numberExits = roomExitCalculator.calculate()
         
         #check slot is not occupyed
@@ -73,12 +72,12 @@ class LevelGenerator:
             name = " {}F ".format(thisRoom.depth+1)
 
         elif (roomLetter == "L"):
-            locx = thisRoom.xloc + ydif
+            locx = thisRoom.xloc - ydif
             locy = thisRoom.yloc + xdif
             name = " {}L ".format(thisRoom.depth+1)
     
         elif (roomLetter == "R"):
-            locx = thisRoom.xloc - ydif
+            locx = thisRoom.xloc + ydif
             locy = thisRoom.yloc - xdif
             name = " {}R ".format(thisRoom.depth+1)
         
@@ -129,11 +128,11 @@ class Probability:
         
         
 class TempRoom:
-    roomName = "none";
+    roomName = "none"
     depth = 0
     xloc = 0
     yloc = 0
-    connectedRooms = [];
+    connectedRooms = []
 
     def __init__(self, roomName, depth, xloc, yloc):
         self.roomName = roomName
