@@ -1,9 +1,13 @@
 import random as rand
+from Room import TempRoom
+from Probability import Probability
+from Queue import Queue
+
 
 
 class LevelGenerator:
     level= []
-
+    generationQueue = Queue()
     
     def __init__(self, xSize, ySize): #zSize not included thus keeping it two dimentional for now.
         
@@ -16,132 +20,105 @@ class LevelGenerator:
         print("Hello my size is " , len(self.level), len(self.level[0]))       #i think it is Y X this might get me later 
 
         #make fake room to make this work inelegent but it works
-        fakeRoom = TempRoom("Fakeroom",0,-1,0)
-
-        self.makeRoom(fakeRoom," 1F ", 0, 0)
-
-    def makeRoom(self, lastRoom, roomName , locx, locy):
-        deepestNode = None
-        depth = lastRoom.depth+1
-
+        
+        #set up while loop;
         choices = ["L","F","R"]
-        selectDirection = rand.randint(0,2)
-
+        #deepestNode = 0 #place holder for when finding boss room later
         roomExitCalculator = Probability([33,33,34])
-        numberExits = roomExitCalculator.calculate()
+        self.generationQueue.inqueue(NodeSave(5, 4,"0F", 5, 5, 0))
         
-        #check slot is not occupyed
-        # old test statement print("this rooms name is "+self.level[locx][locy].roomName, locx, locy)
-        if self.level[locx][locy].roomName == "none":
+        while(self.generationQueue.size() > 0):
+            nodeData = self.generationQueue.dequeue()
+            locX = nodeData.locX
+            locY = nodeData.locY
+            depth = nodeData.depth
+
+
+            selectDirection = rand.randint(0,2)
+            numberExits = roomExitCalculator.calculate()
             
-            #set room values
-            self.level[locx][locy].roomName = roomName
-            self.level[locx][locy].xloc = locx
-            self.level[locx][locy].yloc = locy
-            self.level[locx][locy].depth = depth
-            
-            #generate Exits
-            #if 0 is returned for depth dont consider room generated
-            print("number exits", numberExits)
+            #check slot is not occupyed
+            # old test statement print("this rooms name is "+self.level[locx][locy].roomName, locx, locy)
+            if self.level[locX][locY].roomName == "none":
+                
+                #set room values
+                self.level[locX][locY].roomName = nodeData.roomName
+    #print("room name", nodeData.roomName)
+                self.level[locX][locY].xloc = locX
+                self.level[locX][locY].yloc = locY
+                self.level[locX][locY].depth = depth
+                
+                #generate Exits
+                #if 0 is returned for depth dont consider room generated
+    #print("number exits", numberExits)
 
-            
-            #Generate children rooms
-            #Generate children needs a better algorithm that makes sure of problems
-            for x in range(numberExits):
-                temp = self._nextRoomDataGenerator(lastRoom, self.level[locx][locy], choices[ (selectDirection + x) % 3])
-                if temp is not None:
-                    self.makeRoom(self.level[locx][locy], temp[0], temp[1], temp[2])
-                else:
-                    print("Temp was none on node" , locx, locy)
+                
+                #Generate children rooms
+                for x in range(numberExits):
+                    #Generate children needs a better algorithm that makes sure of problems
+                    #pick direction of next room 
+                    newLocX = locX
+                    newLocY = locY
+                    xdif = locX - nodeData.lastRoomX
+                    ydif = locY - nodeData.lastRoomY
+                    roomLetter = choices[ (selectDirection + x) % 3]
 
-        else:
-            deepestNode = roomName
+                    if (roomLetter == "F"):
+                        newLocX = newLocX + xdif
+                        newLocY = newLocY + ydif
+                        name = "{}F".format(depth+1)
 
-        return deepestNode    
+                    elif (roomLetter == "L"):
+                        newLocX = newLocX - ydif
+                        newLocY = newLocY + xdif
+                        name = "{}L".format(depth+1)
+                
+                    elif (roomLetter == "R"):
+                        newLocX = newLocX + ydif
+                        newLocY = newLocY - xdif
+                        name = "{}R".format(depth+1)
+                    
 
-    def _nextRoomDataGenerator(self, lastRoom,thisRoom,roomLetter):
-        name = "neyt"
-        locx = 0
-        locy = 0
-        xdif = thisRoom.xloc - lastRoom.xloc
-        ydif = thisRoom.yloc - lastRoom.yloc
+                    if (newLocX < 0 or newLocY < 0 or newLocX >= len(self.level)  or newLocY >= len(self.level[0])):
+                            print("Temp was none on node" , newLocX, newLocY)
+                    else:
+                        self.generationQueue.inqueue(NodeSave(locX, locY, name, newLocX, newLocY, depth+1))
 
-        if (roomLetter == "F"):
-            locx = thisRoom.xloc + xdif
-            locy = thisRoom.yloc + ydif
-            name = " {}F ".format(thisRoom.depth+1)
-
-        elif (roomLetter == "L"):
-            locx = thisRoom.xloc - ydif
-            locy = thisRoom.yloc + xdif
-            name = " {}L ".format(thisRoom.depth+1)
-    
-        elif (roomLetter == "R"):
-            locx = thisRoom.xloc + ydif
-            locy = thisRoom.yloc - xdif
-            name = " {}R ".format(thisRoom.depth+1)
-        
-
-        if (locx < 0 or locy < 0 or locx >= len(self.level)  or locy >= len(self.level[0])):
-            return None
-        else:
-            return name, locx, locy
     
     def printLevel(self):
         for i in range(len(self.level[0])):
             for j in range(len(self.level)):
-                print(self.level[i][j].roomName,end=' ')
+                for k in range(6-len(self.level[i][j].roomName)):
+                    print(end=' ')
+                print(self.level[i][j].roomName,end='')
+               #S print(len(self.level[i][j].roomName))
             print(end='\n')
         return None
     
 
 
-
-
-class Probability:
-    probabilityArr = []
-    totalProbablility = 0
-    def __init__(self, probabilityArray): #zSize not included thus keeping it two dimentional for now.
-        
-        self.probabilityArr = probabilityArray.copy()
-        
-        for x in range (len(self.probabilityArr)):
-            self.totalProbablility = self.totalProbablility + self.probabilityArr[x]
-
-
-    # returns a value based on the probabilitys provided during init              
-    def calculate(self):
-        result = 1
-        threshhold = 0
-        random = rand.randint(1,self.totalProbablility)
-
-        
-        for x in range (len(self.probabilityArr)):
-            threshhold = threshhold + self.probabilityArr[x]
-
-            if threshhold > random:
-                result = x + 1
-                break
-
-        return result
-
-        
-        
-class TempRoom:
+#a struct of data to save for use with GeneratorQueue
+class NodeSave:
+    lastRoomX = 0
+    lastRoomY = 0
     roomName = "none"
+    locX = 0
+    locY = 0
     depth = 0
-    xloc = 0
-    yloc = 0
-    connectedRooms = []
 
-    def __init__(self, roomName, depth, xloc, yloc):
+    def __init__(self, inputLastRoomX, inputLastRoomY, roomName, inputLocX, inputLocY, inputDepth):
+        self.lastRoomX = inputLastRoomX
+        self.lastRoomY = inputLastRoomY
         self.roomName = roomName
-        self.depth = depth
-        self.xloc = xloc
-        self.yloc = yloc
+        self.locX = inputLocX
+        self.locY = inputLocY
+        self.depth = inputDepth
+        
+        
+
         
     
-p1 = LevelGenerator(5,5)
+p1 = LevelGenerator(35,35)
 p1.printLevel()
 #p1.generateNewMap(1,1,1)
 
